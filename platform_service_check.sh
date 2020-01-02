@@ -1,10 +1,10 @@
 #Script developed to troubleshoot the Platform Service Related Issues on VxRail
 
-#KB - 517433
-
-echo "This script is trying to automate the steps to isolate issue in KB 517433"
+#KB - 517433 498849
+echo "This script is trying to automate the steps to isolate issue in KB 517433 & 498849"
 
 #It is developed & maintained by VxRail Support - Rajat Kumar
+#This is to be run under the supervision of Dell EMC VxRail Support
 
 
 # Script version:
@@ -19,6 +19,13 @@ echo " Script version: "$script_version
 echo "******************************************************************************"
 echo "********************************CHECK 1***************************************"
 
+if_initial=$(esxcli vxrail agent get | awk '/true/ {print $2}')
+if [ -n "$if_initial" ]
+then
+	echo "Platform service is initialized"
+fi
+
+
 if_initialized=$(esxcli vxrail agent get | awk '/false/ {print $2}')
 if [ -n "$if_initialized" ]
 then
@@ -30,16 +37,16 @@ then
 	    echo "Platform service not initialized, Check KB 517433"
 	fi
 	
-else
-    echo "Platform service is initialized"
 fi
+
+
 
 echo "********************************CHECK 2***************************************"
 
 #During Upgrade we use this to get current firmware version and schedule upgrade after comparing the value with Upgrade Bundle files 
 
 
-firmware_list=$(esxcli vxrail firmware list | grep -i idrac)
+firmware_list=$(esxcli vxrail firmware list | grep -i bios)
 if [ -n "$firmware_list" ]
 then
     echo "Firmware is listed as expected, good ["$firmware_list"]"
@@ -91,5 +98,4 @@ else
 	less /scratch/dell/config/PTAgent.config | grep -i rest_ip
 fi
 
-echo "Check PTAgent KB - 498849 if the above listening is still returning as Null.
-
+echo "Check PTAgent KB - 498849 if the above listen command is still return Null"
